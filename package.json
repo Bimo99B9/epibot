@@ -1,0 +1,18 @@
+{
+  "name": "epi",
+  "version": "1.0.0",
+  "description": "bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bimo99B9",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/opus": "^0.3.2",
+    "discord.js": "^12.3.1",
+    "discord.js-musicbot-addon": "^13.9.1",
+    "ffmpeg-static": "^4.2.7",
+    "ytdl-core": "^3.3.0"
+  }
+}
