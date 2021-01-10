@@ -2,11 +2,15 @@ const Discord = require('discord.js');
 const db = require("megadb");
 let levels_db = new db.crearDB("niveles");
 let coolniveles = new Map()
-
+const client = new Discord.Client();
+let channels;
 let niveles = [["Scratch","765250990227718174"],["Python","765251088722690068"],["Cobol","765251090093703208"],["Java","765251090911330354"],["C#","765251091490144286"],["HTML","765251092518273024"],["C/C++","765251093076639804"],["Ensamblador","765251093558067221"],["Binario","765251358223630366"]]
+
+
 
 module.exports = {
   levelsFun: async (client, message)=>{
+    
     
     
     if(coolniveles.has(message.guild.id+message.author.id)) {

@@ -4,11 +4,13 @@ const client = new Discord.Client();
 const { levelsFun, getRank, getRoles } = require("./niveles.js"); 
 const db = require("megadb");
 const levels_db =  new db.crearDB("niveles");
+const logger = require("discordjs-logger");
 
+logger.all(client);
 
 client.once("ready", () => {
 	client.user.setActivity('epigijon.uniovi.es');
-    console.log("Ready!");
+	console.log("Ready!");
 });
   
 client.once("reconnecting", () => {
@@ -18,6 +20,66 @@ client.once("reconnecting", () => {
 client.once("disconnect", () => {
     console.log("Disconnect!");
 });
+
+var jointime = new Date();
+var leavetime = new Date();
+
+client.on("voiceStateUpdate", function (oldMember, newMember) {
+	let username = oldMember.id;
+	let oldVCID = oldMember.channelID; // El ID del canal del que vienes, null si no vienes de ningún canal.
+	let newVCID = newMember.channelID; // El ID del canal al que te acabas de conectar.
+
+
+
+	//console.log(`${username} changes voice state in ${newChannelName}`);
+	
+	if (oldVCID === undefined){
+		jointime = new Date();
+		console.log(`${username} se ha conectado a ${newVCID}, ${jointime}`);
+	  }
+	  else if (newVCID === null){
+		
+		leavetime = new Date();
+		var timedif = leavetime.getTime() - jointime.getTime();
+		var secdif = timedif / 1000;
+		var xpinvoice = Math.round(secdif / 15);
+		levels_db.sumar(`${newMember.guild.id}.${newMember.id}.xp`, xpinvoice)
+		console.log(`${oldMember.id} se ha desconectado, ${xpinvoice}, ${secdif}`);
+	  }
+	  else
+		console.log(`${oldMember.id} se ha conectado a ${newVCID} y antes estaba en ${oldVCID}`);
+
+});
+
+
+/*
+client.on('voiceStateUpdate', (oldMember, newMember) => {
+    
+	let username = oldMember.displayName;
+	let oldVCID = oldMember.id.voice;
+	let newVCID = newMember.id.voice;
+  
+	let oldChannelName = (oldVCID != null && typeof oldVCID != undefined) ? channels.get(oldVCID).name : null;
+	let newChannelName = (newVCID != null && typeof newVCID != undefined) ? channels.get(newVCID).name : null;
+	
+	if (oldChannelName === null){
+	  console.log(`${oldMember.id} se ha conectado a ${newVCID}`);
+	  var jointime = new Date();
+	}
+	else if (newChannelName === null){
+	  console.log(`${oldMember.id} se ha desconectado`);
+	  var leavetime = new Date();
+	  var jointime_sec = jointime.getDate() / 1000;
+	  var leavetime_sec = leavetime.getDate() / 1000;
+	  var timeinvoice = leavetime_sec - jointime_sec;
+	  var xpinvoice = timeinvoice / 10;
+	  levels_db.sumar(`${newMember.guild.id}.${newMember.id}.xp`, xpinvoice)
+
+	}
+	else
+	  console.log(`${oldMember.id} se ha conectado a ${newVCID} y antes estaba en ${oldVCID}`);
+  });
+*/
 
 client.on("message", function(message) {
 	if (message.author.bot) return;
