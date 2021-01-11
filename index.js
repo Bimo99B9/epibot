@@ -21,8 +21,9 @@ client.once("disconnect", () => {
     console.log("Disconnect!");
 });
 
-var jointime = new Date();
-var leavetime = new Date();
+var jointime;
+var leavetime;
+var xpinvoice = 0;
 
 client.on("voiceStateUpdate", function (oldMember, newMember) {
 	let username = oldMember.id;
@@ -33,53 +34,31 @@ client.on("voiceStateUpdate", function (oldMember, newMember) {
 
 	//console.log(`${username} changes voice state in ${newChannelName}`);
 	
-	if (oldVCID === undefined){
+	if (oldVCID === undefined || oldVCID === null){
 		jointime = new Date();
 		console.log(`${username} se ha conectado a ${newVCID}, ${jointime}`);
 	  }
+	  
 	  else if (newVCID === null){
-		
-		leavetime = new Date();
-		var timedif = leavetime.getTime() - jointime.getTime();
-		var secdif = timedif / 1000;
-		var xpinvoice = Math.round(secdif / 15);
-		levels_db.sumar(`${newMember.guild.id}.${newMember.id}.xp`, xpinvoice)
-		console.log(`${oldMember.id} se ha desconectado, ${xpinvoice}, ${secdif}`);
+		if (jointime != undefined)
+		{
+			leavetime = new Date();
+			var timedif = leavetime.getTime() - jointime.getTime();
+			var secdif = Math.round(timedif / 1000);
+			xpinvoice = Math.round(secdif / 15);
+			if(xpinvoice > 1440)
+			{
+				xpinvoice = 1440;
+			}
+			levels_db.sumar(`${newMember.guild.id}.${newMember.id}.xp`, xpinvoice)
+			console.log(`${oldMember.id} se ha desconectado, ${xpinvoice}, ${secdif}`);
+		}
+		else
+			return;
 	  }
 	  else
 		console.log(`${oldMember.id} se ha conectado a ${newVCID} y antes estaba en ${oldVCID}`);
-
 });
-
-
-/*
-client.on('voiceStateUpdate', (oldMember, newMember) => {
-    
-	let username = oldMember.displayName;
-	let oldVCID = oldMember.id.voice;
-	let newVCID = newMember.id.voice;
-  
-	let oldChannelName = (oldVCID != null && typeof oldVCID != undefined) ? channels.get(oldVCID).name : null;
-	let newChannelName = (newVCID != null && typeof newVCID != undefined) ? channels.get(newVCID).name : null;
-	
-	if (oldChannelName === null){
-	  console.log(`${oldMember.id} se ha conectado a ${newVCID}`);
-	  var jointime = new Date();
-	}
-	else if (newChannelName === null){
-	  console.log(`${oldMember.id} se ha desconectado`);
-	  var leavetime = new Date();
-	  var jointime_sec = jointime.getDate() / 1000;
-	  var leavetime_sec = leavetime.getDate() / 1000;
-	  var timeinvoice = leavetime_sec - jointime_sec;
-	  var xpinvoice = timeinvoice / 10;
-	  levels_db.sumar(`${newMember.guild.id}.${newMember.id}.xp`, xpinvoice)
-
-	}
-	else
-	  console.log(`${oldMember.id} se ha conectado a ${newVCID} y antes estaba en ${oldVCID}`);
-  });
-*/
 
 client.on("message", function(message) {
 	if (message.author.bot) return;
@@ -131,7 +110,7 @@ client.on("message", function(message) {
 */
 
 	if (command === "sendinfocommand") {
-		
+		/*
 		message.channel.send("**__¡BIENVENIDO AL SERVIDOR DE DISCORD DE INGENIERÍA INFORMÁTICA DE LA EPI!__**")
 
 			const embed1 = new Discord.MessageEmbed()
@@ -184,6 +163,7 @@ client.on("message", function(message) {
 		message.channel.send("** **")
 		message.channel.send("**__¿PUEDO INVITAR COMPAÑEROS AL SERVIDOR?__**")
 		message.channel.send(`¡Sí! Todos los estudiantes de nuestro grado son bienvenidos al servidor. Puedes conseguir el enlace de invitación utilizando el comando *;invite*.`)
+		*/
 	}
 
 });
