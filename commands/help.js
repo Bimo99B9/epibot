@@ -11,6 +11,7 @@ exports.run = async (client, message, args)=> {
     :small_blue_diamond: ;say (mensaje) para que el bot diga algo por ti.
     :small_blue_diamond: ;embed (mensaje) para que el bot diga algo (en un embed) por ti.
     :small_blue_diamond: ;rps (piedra|papel|tijera) para jugar a piedra papel tijera con el bot.
+    :small_blue_diamond: ;setmax (limit) establece el límite de usuarios del canal de voz en el que estás conectado. 0 para restablecerlo.
     `)
 
     message.channel.send(embedhelp);

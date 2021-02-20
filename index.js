@@ -1,9 +1,10 @@
 const {BOT_TOKEN, prefix} = require("./config.json")
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const { levelsFun, getRank, getRoles } = require("./niveles.js"); 
+const { voiceFun, levelsFun, getRank, getRoles } = require("./niveles.js"); 
 const db = require("megadb");
 const levels_db =  new db.crearDB("niveles");
+const tiempo_db = new db.crearDB("tiempo");
 const logger = require("discordjs-logger");
 
 logger.all(client);
@@ -12,7 +13,7 @@ client.once("ready", () => {
 	client.user.setActivity('epigijon.uniovi.es');
 	console.log("Ready!");
 });
-  
+
 client.once("reconnecting", () => {
     console.log("Reconnecting!");
 });
@@ -21,43 +22,15 @@ client.once("disconnect", () => {
     console.log("Disconnect!");
 });
 
-var jointime;
-var leavetime;
-var xpinvoice = 0;
 
-client.on("voiceStateUpdate", function (oldMember, newMember) {
-	let username = oldMember.id;
-	let oldVCID = oldMember.channelID; // El ID del canal del que vienes, null si no vienes de ningún canal.
-	let newVCID = newMember.channelID; // El ID del canal al que te acabas de conectar.
-
-
-
-	//console.log(`${username} changes voice state in ${newChannelName}`);
-	
-	if (oldVCID === undefined || oldVCID === null){
-		jointime = new Date();
-		console.log(`${username} se ha conectado a ${newVCID}, ${jointime}`);
-	  }
-	  
-	  else if (newVCID === null){
-		if (jointime != undefined)
-		{
-			leavetime = new Date();
-			var timedif = leavetime.getTime() - jointime.getTime();
-			var secdif = Math.round(timedif / 1000);
-			xpinvoice = Math.round(secdif / 15);
-			if(xpinvoice > 1440)
-			{
-				xpinvoice = 1440;
-			}
-			levels_db.sumar(`${newMember.guild.id}.${newMember.id}.xp`, xpinvoice)
-			console.log(`${oldMember.id} se ha desconectado, ${xpinvoice}, ${secdif}`);
-		}
-		else
+client.on("voiceStateUpdate", function(oldMember, newMember) {
+		
+	if(!newMember.bot) {
+		
+		try{voiceFun(client, oldMember, newMember);}catch(err){}
+		//console.log("Voiceee")
 			return;
-	  }
-	  else
-		console.log(`${oldMember.id} se ha conectado a ${newVCID} y antes estaba en ${oldVCID}`);
+	}
 });
 
 client.on("message", function(message) {

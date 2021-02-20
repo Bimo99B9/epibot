@@ -1,37 +1,91 @@
 const Discord = require('discord.js');
+const discordjsLogger = require('discordjs-logger');
 const db = require("megadb");
 let levels_db = new db.crearDB("niveles");
+let tiempo_db = new db.crearDB("tiempo");
 let coolniveles = new Map()
 const client = new Discord.Client();
-let channels;
+const logger = require("discordjs-logger");
 let niveles = [["Scratch","765250990227718174"],["Python","765251088722690068"],["Cobol","765251090093703208"],["Java","765251090911330354"],["C#","765251091490144286"],["HTML","765251092518273024"],["C/C++","765251093076639804"],["Ensamblador","765251093558067221"],["Binario","765251358223630366"]]
 
 
-
+//logger.all(client);
 module.exports = {
+  voiceFun: async (client, oldMember, newMember)=>{
+
+    if (!levels_db.tiene(newMember.guild.id)) levels_db.establecer(newMember.guild.id, {})
+    if (!tiempo_db.tiene(newMember.guild.id)) levels_db.establecer(newMember.guild.id, {})
+    if (!levels_db.tiene(`${newMember.guild.id}.${newMember.id}`)) levels_db.establecer(`${newMember.guild.id}.${newMember.id}`, {xp: 0, nivel: 1})
+    if (!tiempo_db.tiene(`${newMember.guild.id}.${newMember.id}`)) tiempo_db.establecer(`${newMember.guild.id}.${newMember.id}`, {jointime: 0})
+
+    let username = oldMember.id;
+		let oldVCID = oldMember.channelID; // El ID del canal del que vienes, null si no vienes de ningún canal.
+		let newVCID = newMember.channelID; // El ID del canal al que te acabas de conectar.
+		
+		if (oldVCID === undefined || oldVCID === null){
+			jointime = new Date();
+			time = jointime.getTime();
+			tiempo_db.set(`${newMember.guild.id}.${newMember.id}.jointime`, time)
+
+			console.log(`${username} se ha conectado a ${newVCID}, ${jointime}`);
+		}
+		
+		else if ((newVCID === null) && (await tiempo_db.get(`${newMember.guild.id}.${newMember.id}.jointime`) != 0) && (oldVCID != 797172861017128971)){
+			
+			if (jointime != undefined)
+			{
+				leavetime = new Date();
+				join_time = await tiempo_db.get(`${newMember.guild.id}.${newMember.id}.jointime`)
+				
+				console.log(join_time);
+				
+				var timedif = leavetime.getTime() - join_time;
+				var secdif = Math.round(timedif / 1000);
+				xpinvoice = Math.round(secdif / 15);
+				if(xpinvoice > 1440)
+				{
+					xpinvoice = 1440;
+				}
+				levels_db.sumar(`${newMember.guild.id}.${newMember.id}.xp`, xpinvoice)
+				console.log(`${oldMember.id} se ha desconectado, ${xpinvoice}, ${secdif}`);
+				
+				
+			}
+			else
+				return;
+		}
+		else
+			console.log(`${oldMember.id} se ha conectado a ${newVCID} y antes estaba en ${oldVCID}`);
+
+  },
+
   levelsFun: async (client, message)=>{
     
-    
+   
     
     if(coolniveles.has(message.guild.id+message.author.id)) {
       let cooldown = coolniveles.get(message.guild.id+message.author.id);
-    if(Date.now() <cooldown){
+    if(Date.now() < cooldown){
       return;
     }
        }
     
     if (!levels_db.tiene(message.guild.id)) levels_db.establecer(message.guild.id, {})
+    if (!tiempo_db.tiene(message.guild.id)) levels_db.establecer(message.guild.id, {})
+
     if (!levels_db.tiene(`${message.guild.id}.${message.author.id}`)) levels_db.establecer(`${message.guild.id}.${message.author.id}`, {xp: 0, nivel: 1})
+    if (!tiempo_db.tiene(`${message.guild.id}.${message.author.id}`)) tiempo_db.establecer(`${message.guild.id}.${message.author.id}`, {jointime: 0})
+
     let { xp, nivel } = await levels_db.obtener(`${message.guild.id}.${message.author.id}`)
     let randomxp = Math.floor(Math.random() * 30) + 1
     let levelup = 5 * (nivel **2) + 50 * nivel + 100
     
     coolniveles.set(message.guild.id+message.author.id, Date.now()+120000);
     
-    if((xp + randomxp) >=levelup){
+    if((xp + randomxp) >= levelup) {
       levels_db.establecer(`${message.guild.id}.${message.author.id}`, {xp: 0, nivel: parseInt(nivel+1)})
 	  
-	  nivel=(nivel+1)
+	  nivel = (nivel+1)
 	  
 	  var role = niveles[Math.floor(nivel/5)]
 	  if (nivel > 40) role = niveles[8]
@@ -98,7 +152,7 @@ if (nivel >= 10) {
       console.log (`${message.author.tag}, ganó ${randomxp}`)
     return;
     }
-    },
+  },
   
   
   
