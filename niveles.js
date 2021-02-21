@@ -41,7 +41,7 @@ module.exports = {
 				
 				var timedif = leavetime.getTime() - join_time;
 				var secdif = Math.round(timedif / 1000);
-				xpinvoice = Math.round(secdif / 15);
+				xpinvoice = Math.round(secdif / 25);
 				if(xpinvoice > 1440)
 				{
 					xpinvoice = 1440;
