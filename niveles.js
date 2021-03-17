@@ -83,7 +83,7 @@ module.exports = {
     coolniveles.set(message.guild.id+message.author.id, Date.now()+120000);
     
     if((xp + randomxp) >= levelup) {
-      levels_db.establecer(`${message.guild.id}.${message.author.id}`, {xp: 0, nivel: parseInt(nivel+1)})
+      levels_db.establecer(`${message.guild.id}.${message.author.id}`, {xp: xp - levelup, nivel: parseInt(nivel+1)})
 	  
 	  nivel = (nivel+1)
 	  

@@ -28,7 +28,6 @@ client.on("voiceStateUpdate", function(oldMember, newMember) {
 	if(!newMember.bot) {
 		
 		try{voiceFun(client, oldMember, newMember);}catch(err){}
-		//console.log("Voiceee")
 			return;
 	}
 });
